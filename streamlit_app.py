@@ -72,7 +72,7 @@ def app():
         elif cell["type"] == "sql":
             cell["content"] = col1.text_area(
                 f"SQL", cell["content"], height=60, key=i, placeholder="SQL", label_visibility="collapsed")
-        elif cell["type"] == "ai"
+        elif cell["type"] == "ai":
             cell["content"] = col1.text_area(
                 f"AI", cell["content"], height=30, key=i, placeholder="Your Question", label_visibility="collapsed")
         if col2.button(f"Run", key=f'{i}.1') or run_all or cell["has_run"]:
