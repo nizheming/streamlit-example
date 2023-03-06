@@ -1,38 +1,68 @@
-from collections import namedtuple
-import altair as alt
-import math
-import pandas as pd
 import streamlit as st
 
-"""
-# Welcome to Streamlit!
+# Initialize cells list
+if "cells" not in st.session_state:
+    st.session_state['cells'] = []
+cells = st.session_state.cells
 
-Edit `/streamlit_app.py` to customize this app to your heart's desire :heart:
+# Define a function to add a new cell
+def add_cell(cell_type):
+    if cell_type == "markdown":
+        cells.append({"type": "markdown", "content": "", "has_run": False})
+    elif cell_type == "sql":
+        cells.append({"type": "sql", "content": "", "has_run": False})
 
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+# Define a function to delete a cell
+def delete_cell(index):
+    del cells[index]
 
-In the meantime, below is an example of what you can do with just a few lines of code:
-"""
+# Define a function to run a cell
+def run_cell(index):
+    if cells[index]["type"] == "markdown":
+        st.markdown(cells[index]["content"])
+        cells[index]["has_run"] = True
+    elif cells[index]["type"] == "sql":
+        # Execute the SQL code here
+        st.write("Executing SQL code...")
+        cells[index]["has_run"] = True
+
+# Define the Streamlit app
+def app():
+    # Set the app title
+    st.set_page_config(page_title="Jupyter-like App", page_icon=":pencil:")
+
+    # Define the sidebar options
+    if st.sidebar.button("Add Markdown Cell"):
+        add_cell("markdown")
+    if st.sidebar.button("Add SQL Cell"):
+        add_cell("sql")
+
+    run_all = False
+    if st.sidebar.button("Run all cells"):
+        run_all = True
 
 
-with st.echo(code_location='below'):
-    total_points = st.slider("Number of points in spiral", 1, 5000, 2000)
-    num_turns = st.slider("Number of turns in spiral", 1, 100, 9)
+    # Define the main content
+    for i, cell in enumerate(cells):
+        container = st.container()
+        col1, col2 = container.columns([5, 1])
 
-    Point = namedtuple('Point', 'x y')
-    data = []
+        if cell["type"] == "markdown":
+            cell["content"] = col1.text_area(
+                f"Text", cell["content"], height=120, key=i, placeholder="Markdown", label_visibility="collapsed")
+        elif cell["type"] == "sql":
+            cell["content"] = col1.text_area(
+                f"SQL", cell["content"], height=120, key=i, placeholder="SQL", label_visibility="collapsed")
 
-    points_per_turn = total_points / num_turns
+        if col2.button(f"Run", key=f'{i}.1') or run_all or cell["has_run"]:
+            run_cell(i)
 
-    for curr_point_num in range(total_points):
-        curr_turn, i = divmod(curr_point_num, points_per_turn)
-        angle = (curr_turn + 1) * 2 * math.pi * i / points_per_turn
-        radius = curr_point_num / total_points
-        x = radius * math.cos(angle)
-        y = radius * math.sin(angle)
-        data.append(Point(x, y))
+        if col2.button(f"Delete", key=f'{i}.2'):
+            delete_cell(i)
+            st.experimental_rerun()
+            break
 
-    st.altair_chart(alt.Chart(pd.DataFrame(data), height=500, width=500)
-        .mark_circle(color='#0068c9', opacity=0.5)
-        .encode(x='x:Q', y='y:Q'))
+
+# Run the app
+if __name__ == "__main__":
+    app()
