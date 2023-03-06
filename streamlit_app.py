@@ -7,10 +7,7 @@ cells = st.session_state.cells
 
 # Define a function to add a new cell
 def add_cell(cell_type):
-    if cell_type == "markdown":
-        cells.append({"type": "markdown", "content": "", "has_run": False})
-    elif cell_type == "sql":
-        cells.append({"type": "sql", "content": "", "has_run": False})
+    cells.append({"type": cell_type, "content": "", "has_run": False})
 
 # Define a function to delete a cell
 def delete_cell(index):
@@ -56,6 +53,8 @@ def app():
         add_cell("markdown")
     if st.sidebar.button("Add SQL Cell"):
         add_cell("sql")
+    if st.sidebar.button("Add AI Cell"):
+        add_cell("ai")
 
     run_all = False
     if st.sidebar.button("Run all cells"):
@@ -72,8 +71,10 @@ def app():
                 f"Text", cell["content"], height=120, key=i, placeholder="Markdown", label_visibility="collapsed")
         elif cell["type"] == "sql":
             cell["content"] = col1.text_area(
-                f"SQL", cell["content"], height=120, key=i, placeholder="SQL", label_visibility="collapsed")
-
+                f"SQL", cell["content"], height=60, key=i, placeholder="SQL", label_visibility="collapsed")
+        elif cell["type"] == "ai"
+            cell["content"] = col1.text_area(
+                f"AI", cell["content"], height=30, key=i, placeholder="Your Question", label_visibility="collapsed")
         if col2.button(f"Run", key=f'{i}.1') or run_all or cell["has_run"]:
             run_cell(i)
 
